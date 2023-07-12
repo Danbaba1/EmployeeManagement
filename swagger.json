@@ -1,31 +1,30 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Your API",
-      "description": "API documentation",
-      "version": "1.0.0"
-    },
-    "paths": {
-      "/users": {
-        "get": {
-          "summary": "Get all users",
-          "description": "Returns a list of all users",
-          "responses": {
-            "200": {
-              "description": "Successful operation",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        }
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Your API",
+    "description": "API documentation",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "description": "Returns a list of all users",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
                       }
                     }
                   }
@@ -34,78 +33,209 @@
             }
           }
         }
-      },
+      }
+    },
     "/create-employee": {
       "post": {
         "summary": "Create list of employees",
-        "description": "Makes a list of all employees",
-        "consumes": ["application/json"],
-        "produces": ["text/plain"],
-        "parameters": [{
-          "name": "employee",
-          "in": "body",
-          "description": "request post object",
-          "schema": {
-              "type": "object",
-              "$ref": "#/definitions/Employee"
-            },
-            "required":"true"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "description": "request post object",
+              "schema": {
+                "$ref": "#/definitions/Employee",
+                "required": true
+              }
+            }
           }
+        },
+        "description": "Makes a list of all employees",
+        "consumes": [
+          "application/json"
         ],
-    "responses": {
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [],
+        "responses": {
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
-              }
+              "text/plain": {}
             }
           },
           "400": {
             "description": "bad request",
             "content": {
-              "text/plain": {
-              }
+              "text/plain": {}
             }
           },
-          "500" : {
+          "500": {
             "description": "Server Error",
             "content": {
-              "text/plain": {
+              "text/plain": {}
+            }
+          }
+        }
+      }
+    },
+    "/update-employee/{id}": {
+      "patch": {
+        "summary": "Update specific fields of an employee by ID",
+        "requestBody": {
+          "description": "Employee data to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/EmployeePatchInput",
+                "required": true
+              }
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the employee",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "employee",
+            "in": "body",
+            "description": "Employee object containing specific fields to update",
+            "schema": {
+              "$ref": "#/definitions/EmployeePatchInput"
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "Employee record updated successfully",
+          "content": {
+            "text/plain": {}
+          },
+          "400": {
+            "description": "Invalid request payload",
+            "content": {
+              "text/plain": {}
+            },
+            "404": {
+              "description": "Employee not found",
+              "content": {
+                "text/plain": {}
+              },
+              "500": {
+                "description": "Internal server error",
+                "content": {
+                  "text/plain": {}
+                }
               }
             }
           }
         }
       }
-    }
     },
-    "definitions":{
-      "Employee":{
-        "type": "object",
-        "properties": {
-          "Department_id": {
-            "type": "integer"
+    "/get-employee/{id}": {
+      "get": {
+        "summary": "Get an employee by ID",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Employee ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
           },
-          "first_name": {
-            "type": "string"
-          },
-          "last_name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "hire_date": {
-            "type": "string"
-          },
-          "salary": {
-            "type": "integer"
+          "404": {
+            "description": "Employee not found"
           }
         }
       }
+    },
+    "/delete-employee/{id}": {
+      "delete": {
+        "summary": "Delete an employee by ID",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Employee ID",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Employee deleted successfully"
+        },
+        "404": {
+          "description": "Employee not found"
+        }
+      }
     }
+      }
+  },
+  "definitions": {
+    "Employee": {
+      "type": "object",
+      "properties": {
+        "Department_id": {
+          "type": "integer"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "hire_date": {
+          "type": "string"
+        },
+        "salary": {
+          "type": "integer"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeePatchInput": {
+      "type": "object",
+      "properties": {
+        "salary": {
+          "type": "integer"
+        }
+      }
+    }
+  }
 }
- 
-  
-
-
-  

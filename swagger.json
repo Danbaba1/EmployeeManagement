@@ -1,15 +1,51 @@
 {
   "openapi": "3.0.0",
+  "components":{
+    "securitySchemes":{
+      "ourbearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "in": "header",
+        "name":"Authorization"
+      }
+    }
+  },
+  "security":[{
+    "ourbearer":[]
+  }]
+    ,
+
   "info": {
     "title": "Your API",
     "description": "API documentation",
     "version": "1.0.0"
   },
   "paths": {
-    "/users": {
+    "/get-employees": {
       "get": {
-        "summary": "Get all users",
+        "summary": "Get all employees",
         "description": "Returns a list of all users",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "current page",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "number of employees at a time",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -29,6 +65,40 @@
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/only-admin": {
+      "get":{
+        "summary": "Only admin can access",
+        "description": "Admin can do multiple operations",
+        "produces":["application/json"],
+        "consumes":["application/json"],
+        "responses": {
+          "200":{
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403":{
+            "content":{
+              "text/plain":{
+                "description": "Not allowed to this resource"
               }
             }
           }
@@ -200,11 +270,173 @@
         }
       }
     }
-      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Logs in a user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "description": "lets in a user",
+              "schema": {
+                "$ref": "#/definitions/Employeelogin",
+                "required": true
+              }
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {}
+            }
+          }
+        }
+    }
   },
-  "definitions": {
-    "Employee": {
-      "type": "object",
+    "/create-employees": {
+        "post": {
+          "summary": "Create multiple employee records",
+          "requestBody":{
+          "content":{
+            "application/json":{
+              "description": "creating multiple employee records",
+              "schema": {
+                "$ref" : "#/definitions/Employees",
+                "required": true
+            }
+            }
+          }
+        },
+        "description": "Array of employee records",
+          "consumes": ["application/json"],
+          "produces": ["application/json"],
+          "parameters": [],
+          "responses": {
+            "201": {
+              "description": "Employee records created successfully"
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/refresh-token": {
+        "post": {
+          "summary": "Refresh JWT token",
+          "description": "Refreshes an expired JWT token and provides a new one with a renewed expiration time.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshtoken": {
+                      "type": "string",
+                      "description": "The expired JWT token to be refreshed."
+                    }
+                  },
+                  "required": ["token"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "description": "The new JWT token with a renewed expiration time."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+    }
+ }
+}
+  },
+ "definitions": {
+  "Employee": {
+    "type": "object",
+    "properties": {
+      "Department_id": {
+        "type": "integer"
+      },
+      "first_name": {
+        "type": "string"
+      },
+      "last_name": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string"
+      },
+      "hire_date": {
+        "type": "string"
+      },
+      "salary": {
+        "type": "integer"
+      },
+      "password": {
+        "type": "string"
+      }
+    }
+  },
+  "EmployeePatchInput": {
+    "type": "object",
+    "properties": {
+      "salary": {
+        "type": "integer"
+      }
+    }
+  },
+  "Employeelogin": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string"
+      },
+      "password": {
+        "type": "string"
+      }
+    }
+  },
+  "Employees" :{
+    "type": "array",
+    "items": {
+      "type" :"object",
       "properties": {
         "Department_id": {
           "type": "integer"
@@ -227,15 +459,11 @@
         "password": {
           "type": "string"
         }
-      }
-    },
-    "EmployeePatchInput": {
-      "type": "object",
-      "properties": {
-        "salary": {
-          "type": "integer"
-        }
-      }
-    }
+      },
+      "required": ["Department_id","first_name","last_name","email","hire_date","salary","password"]
+    }          
   }
+}
+    
+    
 }
